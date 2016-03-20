@@ -51,7 +51,7 @@ class Household():
    		except:
    			return {}
 
-   	def get_services:
+   	def get_services(self):
    		try:
    			return self.services
    		except:
