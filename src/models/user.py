@@ -54,10 +54,13 @@ class AccountUser():
             return None
         
     def get_json(self):
-        return json.loads({
+        return json.loads(get_mongo_form)
+    
+    def get_mongo_form(self):
+        return {
                 'email':self.email,
                 'first_name':self.first_name,
                 'last_name':self.last_name,
                 'passhash':self.passhash,
                 'token':self.token
-            })
+        }
