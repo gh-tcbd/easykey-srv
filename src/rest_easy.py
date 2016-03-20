@@ -97,4 +97,4 @@ def household():
         userid = authenticate(request.form)
     
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0')
