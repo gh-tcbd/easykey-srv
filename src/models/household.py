@@ -10,10 +10,12 @@
 class Household():
     def __init__(self,name="",users=None,services=None):
         if name:
-            self.name=name
-            if not users:
-                users = []
-            if not services:
-                services = []
+        	if not validate_name(name):
+        		self.name = "New User"
+        	if not users:
+        		self.users = {}
+        	if not services:
+        		self.services = {"wemo": False, "hue": False, "lockitron": False, "nest": False}
             return True
         return False
+    
