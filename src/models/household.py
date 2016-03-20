@@ -34,25 +34,25 @@ class Household():
     	return False
     
     def set_service(self, service="", enable=False):
-    	if service in self.services:
-    		self.services[service]=enable
-    		return True
-    	return False
+        if service in self.services:
+            self.services[service]=enable
+            return True
+        return False
     
     def get_name(self):
     	try:
     		return self.name
     	except:
-    		return None
+    		return
+
+    def get_users(self):
+        try:
+            return self.users
+        except:
+            return {}
         
-   	def get_users(self):
-   		try:
-   			return self.users
-   		except:
-   			return {}
-        
-   	def get_services:
-   		try:
-   			return self.services
-   		except:
-   			return {}
+    def get_services(self):
+        try:
+            return self.services
+        except:
+            return {}
