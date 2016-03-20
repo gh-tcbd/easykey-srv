@@ -1,11 +1,11 @@
 from flask import Flask
 from flask import request
 from pymongo import MongoClient
-from mongoengine import *
 from models import user
 from models import household
 from models import device
 from sec import easy_sec
+from db import mdb
 import json
 import hashlib
 
@@ -27,23 +27,22 @@ def register():
     print('Email:{}\tPass:{}\tFirst:{}\tLast:{}'.format(r_email,r_password,r_first_name,r_last_name))
     if r_email and r_password and r_first_name and r_last_name:
         print('Token generating')
-        try:
-            u_token = easy_sec.easy_token()
-        except Exception as e:
-            print(e)
-    print('Connecting to database')
-    connect(host="mongodb://easySrv:serverpass@gh-tcbd.dyladan.me:27017/easykey")
-    print('Generating Document')
-    try:
-        new_user = user.AccountUser(email=r_email,
+        u_token = easy_sec.easy_token()
+    print('Generating User')
+    new_user = user.AccountUser(email=r_email,
                        password=r_password,
                        token=u_token,
                        first_name=r_first_name,
-                       last_name=r_last_name).save()
-    except Exception as e:
-        print(e)
-    print('Inserted document')
-    return json.loads({'token':user.token})
+                       last_name=r_last_name)
+    if new_user.is_valid():
+        print('Validated user info')
+        print('Connecting to database')
+        userColl = mdb.getCollectionConnection('users')
+        print('Inserted document')
+        result = userColl.insert_one(new_user.json())
+        return json.loads({'token':new_user.get_token()})
+    else:
+        return json.loads({'status':'failure'})
     #return access token
     
 @app.route('/login', methods=['POST'])

@@ -7,10 +7,9 @@ def getDatabaseConnection():
         print e
 
 def getCollectionConnection(name=""):
-    if not name:
+    if not name or len(name)>120:
         return
     try:
-        db = getDatabaseConnection()
-        return db[name]
+        return = MongoClient("mongodb://easySrv:serverpassword@gh-tcbd.dyladan.me:27017")['easykey'][name]    
     except Exception as e:
         print e
