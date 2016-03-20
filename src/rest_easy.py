@@ -1,22 +1,25 @@
 from flask import Flask
 from flask import request, jsonify
 from pymongo import MongoClient
-from mongoengine import *
 from models import user
 from models import household
 from models import device
-from sec import easy_sec
+from models import easy_sec
+from db import mdb
 import json
 import hashlib
 
 
 app = Flask(__name__)
 
+# ROOT TEST
 @app.route('/')
 def root():
     rootjson = {'status':'success','location':'/','developers':['tom','chase','brandon','dan']}
     return jsonify(rootjson)
 
+
+# REGISTER 
 @app.route('/register', methods=['POST'])
 def register():
     r_email = request.form['email']
@@ -24,33 +27,38 @@ def register():
     r_first_name = request.form['first_name']
     r_last_name = request.form['last_name']
     print('Email:{}\tPass:{}\tFirst:{}\tLast:{}'.format(r_email,r_password,r_first_name,r_last_name))
-    if r_email and r_password and r_first_name and r_last_name:
-        print('Token generating')
-        try:
-            u_token = easy_sec.easy_token()
-        except Exception as e:
-            print(e)
-    print('Connecting to database')
-    connect(host="mongodb://easySrv:serverpass@gh-tcbd.dyladan.me:27017/easykey")
-    print('Generating Document')
-    try:
-        new_user = user.AccountUser(email=r_email,
+    if not (r_email and r_password and r_first_name and r_last_name):
+        return json.loads({'status':'failure'})
+    print('Token generating')
+    u_token = easy_sec.easy_token()
+#    print('Hashing password')
+#    u_hash = easy_sec.hash_password(r_password)
+    print('Generating User')
+    new_user = user.AccountUser(email=r_email,
                        password=r_password,
                        token=u_token,
                        first_name=r_first_name,
-                       last_name=r_last_name).save()
+                       last_name=r_last_name)
+    try:
+        print('Validated user info')
+        print('Connecting to database')
+        userColl = mdb.getCollectionConnection('user')
+        print('Inserted document')
+        result = userColl.insert_one(new_user.json())
+        return json.loads({'token':new_user.get_token()})
     except Exception as e:
-        print(e)
-    print('Inserted document')
-    return json.loads({'token':user.token})
+        return json.loads({'status':str(e)})
     #return access token
     
+
+# LOGIN
 @app.route('/login', methods=['POST'])
 def login():
     r_email = request.form['email']
     r_password = request.form['password']
     if email and password:
-        connect('users',host='gh-tcbd.dyladan.me',port=27019)
+        #connect('users',host='gh-tcbd.dyladan.me',port=27019)
+        userColl = mdb.getCollectionConnection('user')
         user = User.objects(email=r_email,password=r_password)
         try:
             return json.dumps({'token':user.token,
@@ -62,6 +70,7 @@ def login():
     #return access token
     
 
+# HOUSEHOLD [ GET / POST ]
 @app.route('/household', methods=['POST','GET'])
 def household():
     error = None
@@ -70,7 +79,7 @@ def household():
     if request.method is 'POST':
         # get user id based off access key
         # returns empty value if no key found in system
-        userid = authenticate(request.form)
+        userid = easy_sec.authenticate(request.form)
         if userid:
             # test data for consistency
             if validate_household(request.form):
@@ -93,7 +102,7 @@ def household():
     
     # retrieve data from the database for households
     elif request.method is 'GET':
-        userid = authenticate(request.form)
+        userid = easy_sec.authenticate(request.form)
     
 if __name__ == '__main__':
     app.run()

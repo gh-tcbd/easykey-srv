@@ -1,0 +1,2 @@
+# ignore test classes
+*.test.py
