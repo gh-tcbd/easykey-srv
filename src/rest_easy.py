@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import request
+from flask import request, jsonify
 from pymongo import MongoClient
 from mongoengine import *
 from models import user
@@ -15,8 +15,7 @@ app = Flask(__name__)
 @app.route('/')
 def root():
     rootjson = {'status':'success','location':'/','developers':['tom','chase','brandon','dan']}
-    #return json.JSONEncoder().encode(rootjson)
-    return json.dumps(rootjson)
+    return jsonify(rootjson)
 
 @app.route('/register', methods=['POST'])
 def register():
