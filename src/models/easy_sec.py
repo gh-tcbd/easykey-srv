@@ -1,7 +1,7 @@
 from flask import request
 from pymongo import MongoClient
 import hashlib, random
-import crypter
+import re
 
 def authenticate_key(req):
     try:
@@ -18,8 +18,12 @@ def authenticate_key(req):
 def easy_token():
     return (''.join([hashlib.sha224( str(random.getrandbits(256)).encode('utf_8') ).hexdigest() for _ in range(3)]))[:128]
 
-def hash_password(pass):
-    pass_len = len(pass)
+def hash_password(password):
+    pass_len = len(password)
     if type(password) is str and (pass_len>7 and pass_len<64) and re.match(r"[a-zA-Z0-9_@#$%^&]",password):
-        # hash password and return
-        return pwd_context.encrypt(pass)
+        return hashlib.sha512(password.encode('utf_8')).hexdigest()
+    else:
+        return
+        
+def check_password(password, hash_pw):
+    return (hash_password(password)==hash_pw)

@@ -1,27 +1,20 @@
 import re
-import hashlib, uuid
-
-#class AccountUser(Document):
-#    email = EmailField(required=True,unique=True)
-#    first_name = StringField(max_length=50,required=True)
-#    last_name = StringField(max_length=50,required=True)
-#    hash = StringField(max_length=50,required=True)
-#    token = StringField(min_length=128,max_length=128,required=True)
+from . import model_eval
+from . import easy_sec
 
 class AccountUser():
-    def __init__(self,email="",first_name="",last_name="",hash="",token=""):
-        if email and first_name and last_name and passhash and token:
-            if validate_email(email) 
-            and validate_name(first_name) 
-            and validate_name(last_name) 
-            and validate_passhash(passhash):
+    def __init__(self,email="",first_name="",last_name="",password="",token=""):
+        if model_eval.validate_email(email) \
+            and model_eval.validate_name(first_name) \
+            and model_eval.validate_name(last_name) \
+            and model_eval.validate_password(password):
                     self.email=email
                     self.first_name=first_name
                     self.last_name=last_name
-                    self.passhash=passhash
+                    self.passhash=easy_sec.hash_password(password)
                     self.token=token
-                    return True
-        return False
+        else:
+            raise Exception('Error building AccountUser')
     
     def get_email(self):
         try:
@@ -64,3 +57,6 @@ class AccountUser():
                 'passhash':self.passhash,
                 'token':self.token
         }
+    
+    def is_valid(self):
+        return self.is_valid
