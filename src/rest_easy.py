@@ -12,12 +12,15 @@ import hashlib
 
 app = Flask(__name__)
 
+# ROOT TEST
 @app.route('/')
 def root():
     rootjson = {'status':'success','location':'/','developers':['tom','chase','brandon','dan']}
     #return json.JSONEncoder().encode(rootjson)
     return json.dumps(rootjson)
 
+
+# REGISTER 
 @app.route('/register', methods=['POST'])
 def register():
     r_email = request.form['email']
@@ -45,12 +48,15 @@ def register():
         return json.loads({'status':'failure'})
     #return access token
     
+
+# LOGIN
 @app.route('/login', methods=['POST'])
 def login():
     r_email = request.form['email']
     r_password = request.form['password']
     if email and password:
-        connect('users',host='gh-tcbd.dyladan.me',port=27019)
+        #connect('users',host='gh-tcbd.dyladan.me',port=27019)
+        userColl = mdb.getCollectionConnection('users')
         user = User.objects(email=r_email,password=r_password)
         try:
             return json.dumps({'token':user.token,
@@ -62,6 +68,7 @@ def login():
     #return access token
     
 
+# HOUSEHOLD [ GET / POST ]
 @app.route('/household', methods=['POST','GET'])
 def household():
     error = None
@@ -70,7 +77,7 @@ def household():
     if request.method is 'POST':
         # get user id based off access key
         # returns empty value if no key found in system
-        userid = authenticate(request.form)
+        userid = easy_sec.authenticate(request.form)
         if userid:
             # test data for consistency
             if validate_household(request.form):
@@ -93,7 +100,7 @@ def household():
     
     # retrieve data from the database for households
     elif request.method is 'GET':
-        userid = authenticate(request.form)
+        userid = easy_sec.authenticate(request.form)
     
 if __name__ == '__main__':
     app.run()
