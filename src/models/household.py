@@ -44,13 +44,13 @@ class Household():
     		return self.name
     	except:
     		return None
-        
-   	def get_users(self):
+
+	def get_users(self):
    		try:
    			return self.users
    		except:
    			return {}
-        
+
    	def get_services:
    		try:
    			return self.services
